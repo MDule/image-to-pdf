@@ -48,34 +48,40 @@ You can run the app in two ways:
 
 #
 
-# How does app work
+# How does the app work
 
-### App works in a following manner:
+## In short, the scripts works like this:
 
- 1. In the Python script, you need to define API_KEY, location of folders with images which you want to convert to PDF and which ones would you like to combine (merge together).
+> 1. Download Chrome Web Driver and place it in root folder of the project
+> 2. Enter API key in the script (my API key is .env file, you need to supply your own)
+> 3. Define paths to folders with images in format -> ``[path, "file_id-part_id"]``
+>    1. path: absolute path to folder, string literal i.e. r"C:\Images\Folder1"
+>    2. file_id: define id for the file [int]
+>    3. part_id: if you have multiple folders with images but you want to merge them together, then you need to enter part_id as [int], files will be grouped by file_id
+>    - i.e. 
+> ```
+>       folders=[
+>           [r"C:\Images\Folder1", "1-1"]
+>           [r"C:\Images\Folder2\part1", "2-1"],
+>           [r"C:\Images\Folder2\part1", "2-2"],
+>       ]
+>```
+> 4. Run the script and Selenium will take over, it will open the website via Chrome, upload files, set PDF orientation, margin size, paper size and download the files (files will be downloaded in the root folder, inside folder "1-step-Download")
+> 5. Then the script will upload PDFs from "1-step-Download" folder using iLovePDF API and compress them to minimum file size (files will be downloaded to "2-step-Compressed" folder)
+> 6. Script will then rename the files inside "2-step-Compressed" folder
+> 7. Group them into a list
+> 8. Upload and merge them via iLovePDF API
+> 9. Download them to "3-step-Final" folder
 
-2. Attempt to read the data from PDF file into python script as a PDF class (using pdfplumber) and it was needed to check if PDF file was created properly using pdf printers (you could extract data) because sometimes, people created a PDF file that was actually an image (i.e. JPG) inside PDF so data extraction was not possible.
-
-3. If data could be extracted from PDF file, the file was read and one large string was created
-
-4. String was then separated by rows (PDF had structured data, every single one
-had the same structure, just different data)
-
-5. Data needed was then selected from it's corresponding row and placed inside
-a variable
-
-6. Because the variables were in latin letters (and some documents or template were needed to be in cyrillic letters) they had to be transliterated into cyrillic letters using a custom created module
-
-7. After transliteration, data was exported into a new Excel file - saob_data(.xlsx). 
+#
 
 ### **Note 1**
-It was easier to create a new excel file that was then imported into a new template excel document or DB then it was to directly export it into excel template (because openpyxl was deleting pictures from excel files at that time) and most of the templates had logos or other images embeded in them. Second reason, because then the python script would be too coupled with the files and applications used (like 5 separate people, with little to none IT knowledge, worked in DB and/or creating new Excel documents, doing office work at the same time and that was a bad idea.)
+This script was made to solve a specific problem, to create PDF files from images that that could be sent via e-mail. Images had size from 5-15MB per image and on average each folder had 30-50 images (~300-500MB in total without compression) and the number of folders would range from 10-20 (without counting the subfolders) every week.
+
+The PDFs could be created using desktop app but it is a manual, boring and repetitive task that could be automated. And given the number of folders, it would take a lot of time to be completed manually, hence the automation's aim was to save time and remove repetitive work.
+
+Resulting PDF had 'page or pages' which indicated from which folder the images came and which ones were grouped (business requirement).
 
 ### **Note 2**
-Mainloop of GUI has weird if statment for running because the app was placed on 
-the server-pc first and all users would connect to it (file server) and use it. 
-It was easier for bug fixes and improvments to have it in one place then on every
-PC. But later, the possibility to run it on every pc was added, per request.
+The script was meant to be run when everyone was out of office, completely automated and was written poorly, when I was starting to learn Python and wanted to use what I learned to solve current problems in my workplace and practiced what I learned and as a bonus save time for productive work. It was used only by myself for specific use-case for I didn't waste time making the code look pretty, I just needed it to work. 
 
-### **Disclaimer**
-Provided sample PDF for testing purposes doesn't represent a real vehicles registration ID. The data has been changed to protect sensitive info, swaped with dummy data. Any similarity is entirely coincidental.
